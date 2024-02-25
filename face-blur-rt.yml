@@ -1,0 +1,13 @@
+name: face-blur-rt
+channels:
+- conda-forge
+- pytorch
+dependencies:
+- ocl-icd-system
+- conda-forge::opencv
+- python=3.11
+- pytorch
+- pytorch-cuda=12.1
+- torchaudio
+- torchvision
+
