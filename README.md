@@ -8,3 +8,5 @@ Check `design-document.md` for a timeline and details.
 
 1. Install conda or mamba
 2. Create conda env for this project and install depencies: `conda env create --name face-blur-rt --file=face-blur-rt.yml`
+3. Activate the env: `conda activate face-blur-rt`
+4. Run the demo: `python main.py`
