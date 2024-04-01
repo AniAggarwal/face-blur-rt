@@ -49,10 +49,14 @@ class SFRecognizer(FaceRecognizer):
                     )
                 )
 
+        print(
+            f"Loaded {len(self.face_encodings)} known faces."
+            f"Training images per face: { {n: len(f) for n, f in self.face_encodings.items()} }"
+        )
+
     def recognize_faces(
         self, frame: ndarray, faces: ndarray
     ) -> dict[int, str | None]:
-        COSINE_THRESH = 0.363
         # iterate over detected faces and process them, check against
         # each known face, and map the index to the name if possible
         output = {}
@@ -65,21 +69,32 @@ class SFRecognizer(FaceRecognizer):
                 self.recognizer.alignCrop(frame, bboxes)
             )
 
+            best_idx = None
+            best_cosine = -1
+
             for name, encodings in self.face_encodings.items():
+                print("checking", name)
+
+                # we will average the cosine similarity over each name
+                avg_cosine = 0
                 for encoding in encodings:
                     cosine_score = self.recognizer.match(
                         encoding, curr, cv2.FaceRecognizerSF_FR_COSINE
                     )
-                    print("cosine score", cosine_score)
+                    print(f"comparing {name} with {cosine_score}")
 
-                    if cosine_score >= COSINE_THRESH:
-                        output[i] = name
-                        # TODO: add count threshold where enough matches are needed
-                        break
+                    avg_cosine += cosine_score
 
-                # only allow one recognized face per detected face
-                # TODO: add tie breaking mechanism; currently chooses first one
-                if output[i] is not None:
-                    break
+                avg_cosine /= len(encodings)
+                print("avg cosine", avg_cosine)
+
+                # select the best matching name
+                if avg_cosine > best_cosine:
+                    best_idx = name
+                    best_cosine = avg_cosine
+
+            # select the best match
+            if best_idx is not None:
+                output[i] = best_idx
 
         return output

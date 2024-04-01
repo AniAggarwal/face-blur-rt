@@ -3,6 +3,8 @@
 ## TODO:
 
 - [ ] FPS counter
+- [ ] Face recognition
+- [ ] Add ellipse mode to better cover face with circular mode
 
 ## Overview
 
