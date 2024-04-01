@@ -1,7 +1,9 @@
 import cv2
-import numpy as np
+from pathlib import Path
 
-from real_time_face_blurrer import RealTimeFaceBlurrer
+from real_time_face_blurrer import RealTimeFaceBlurrerByFrame
+from face_detector import SCRFDDetector, YuNetDetector
+from face_recognizer import FaceRecognizer
 
 
 def view_camera(video_source: int, window_name: str = "Camera") -> None:
@@ -20,12 +22,20 @@ def view_camera(video_source: int, window_name: str = "Camera") -> None:
 
 
 if __name__ == "__main__":
-    view_camera(0)
     # Example usage
-    # video_source = 0  # Webcam source
-    # face_detection_model = "path/to/face/detection/model"
-    # face_recognition_model = "path/to/face/recognition/model"
-    # real_time_blurrer = RealTimeFaceBlurrer(
-    #     video_source, face_detection_model, face_recognition_model
-    # )
-    # real_time_blurrer.process_stream()
+    video_source = 0  # Webcam source
+    # view_camera(0)
+
+    # detector_path = Path("./models/SCRFD_10G.pth").resolve()
+    # face_detection_model = SCRFDDetector(detector_path)
+
+    detector_path = Path(
+        "./models/face_detection_yunet_2023mar.onnx"
+    ).resolve()
+    face_detection_model = YuNetDetector(detector_path)
+    face_recognition_model = FaceRecognizer("")
+
+    real_time_blurrer = RealTimeFaceBlurrerByFrame(
+        video_source, face_detection_model, face_recognition_model
+    )
+    real_time_blurrer.process_stream()

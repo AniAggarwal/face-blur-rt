@@ -1,3 +1,6 @@
+# ignore cloned subrepos
+git-subrepos/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
