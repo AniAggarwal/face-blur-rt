@@ -1,13 +1,17 @@
-name: face-blur-rt
+name: face-blur-rt-new
 channels:
 - conda-forge
 - pytorch
 dependencies:
+- easydict
 - ocl-icd-system
+- conda-forge::onnx
+- conda-forge::onnxruntime
 - conda-forge::opencv
 - python=3.11
 - pytorch
 - pytorch-cuda=12.1
+- scipy
 - torchaudio
 - torchvision
 
