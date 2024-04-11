@@ -2,9 +2,11 @@
 
 ## TODO:
 
-- [ ] FPS counter
+- [ ] FPS counter - Ani
 - [ ] Face recognition
 - [ ] Add ellipse mode to better cover face with circular mode
+- [ ] Improve performance of blurring techniques (except for black square, which is very fast)
+- [ ] Add haars cascade face detection - Vance
 
 ## Overview
 
