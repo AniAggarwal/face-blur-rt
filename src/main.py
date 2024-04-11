@@ -5,6 +5,7 @@ from real_time_face_blurrer import RealTimeFaceBlurrerByFrame
 from blurrer import BlurringMethod, BlurringShape
 from face_detector import SCRFDDetector, YuNetDetector
 from face_recognizer import FaceRecognizer, SFRecognizer
+from performance_settings import PerformanceSettings
 
 
 def view_camera(video_source: int, window_name: str = "Camera") -> None:
@@ -23,14 +24,15 @@ def view_camera(video_source: int, window_name: str = "Camera") -> None:
 
 
 if __name__ == "__main__":
-    # Example usage
-    video_source = 0  # Webcam source
-    # blur_method = BlurringMethod.LINE
-    # blur_method = BlurringMethod.BLACK
-    blur_method = BlurringMethod.GAUSSIAN
+    # video_source = 0  # Webcam source
+    video_source = str(Path("./data/demos/one-person.webm").resolve())
 
-    # blur_shape = BlurringShape.SQUARE
-    blur_shape = BlurringShape.CIRCLE
+    blur_method = BlurringMethod.LINE
+    # blur_method = BlurringMethod.BLACK
+    # blur_method = BlurringMethod.GAUSSIAN
+
+    blur_shape = BlurringShape.SQUARE
+    # blur_shape = BlurringShape.CIRCLE
     # view_camera(0)
 
     detector_path = Path(
@@ -46,11 +48,14 @@ if __name__ == "__main__":
         recognizer_path, face_detection_model, known_faces_path
     )
 
+    performance_settings = PerformanceSettings((640, 480), 30)
+
     real_time_blurrer = RealTimeFaceBlurrerByFrame(
         video_source,
         face_detection_model,
         face_recognition_model,
         blur_method,
         blur_shape,
+        performance_settings,
     )
     real_time_blurrer.process_stream()

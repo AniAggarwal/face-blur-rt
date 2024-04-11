@@ -4,6 +4,12 @@
 
 
 class PerformanceSettings:
-    def __init__(self, resolution: tuple[int, int], target_fps: int) -> None:
+    def __init__(
+        self,
+        resolution: tuple[int, int],
+        target_fps: int,
+        fps_counter: bool = True,
+    ) -> None:
         self.resolution = resolution
         self.target_fps = target_fps
+        self.fps_counter = fps_counter

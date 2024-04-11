@@ -20,14 +20,13 @@ class RealTimeFaceBlurrer(ABC):
         face_recognizer: FaceRecognizer,
         blurring_method: BlurringMethod,
         blurring_shape: BlurringShape,
-        resolution: tuple[int, int] = (640, 480),
-        target_fps: int = 24,
+        performance_settings: PerformanceSettings,
     ):
         self.video_input = VideoInputHandler(video_source)
         self.face_detector = face_detector
         self.face_recognizer = face_recognizer
         self.blurrer = Blurrer(blurring_method, blurring_shape)
-        self.performance_settings = PerformanceSettings(resolution, target_fps)
+        self.performance_settings = performance_settings
 
     @abstractmethod
     def process_stream(self):
@@ -38,13 +37,20 @@ class RealTimeFaceBlurrer(ABC):
 class RealTimeFaceBlurrerByFrame(RealTimeFaceBlurrer):
     def process_stream(self):
         """Process the video stream and apply face blurring in real-time."""
+
+        tick_meter = cv2.TickMeter()
+        tick_meter.reset()
+
         while True:
-            frame = self.video_input.get_frame()
-            if frame is None:
+            tick_meter.start()
+
+            ret, frame = self.video_input.get_frame()
+            if not ret:
+                print("No more frames.")
                 break
 
             # resize to target res
-            cv2.resize(frame, self.performance_settings.resolution, dst=frame)
+            frame = cv2.resize(frame, self.performance_settings.resolution)
 
             # Detect and recognize faces
             detected_faces = self.face_detector.detect_faces(frame)
@@ -54,20 +60,38 @@ class RealTimeFaceBlurrerByFrame(RealTimeFaceBlurrer):
                 detected_faces, self.performance_settings.resolution
             )
 
-            recognized_dict = self.face_recognizer.recognize_faces(
-                frame, detected_faces
-            )
+            print(f"Detected {len(detected_faces)} faces.")
 
-            for i, face in enumerate(detected_faces):
-                if i in recognized_dict:
-                    print("Recognized face:", recognized_dict[i])
-                    # Apply blurring to recognized faces
-                    frame = self.blurrer.apply_blur(frame, face.reshape(1, -1))
-                else:
-                    print("Unrecognized face")
+            # TODO: uncomment this when face_recognizer is implemented
+            # and not super slow
+
+            # recognized_dict = self.face_recognizer.recognize_faces(
+            #     frame, detected_faces
+            # )
+            #
+            # for i, face in enumerate(detected_faces):
+            #     if i in recognized_dict:
+            #         print("Recognized face:", recognized_dict[i])
+            #         # Apply blurring to recognized faces
+            #         frame = self.blurrer.apply_blur(frame, face.reshape(1, -1))
+            #     else:
+            #         print("Unrecognized face")
 
             # Apply blurring to unrecognized faces
-            # frame = self.blurrer.apply_blur(frame, detected_faces)
+            frame = self.blurrer.apply_blur(frame, detected_faces)
+
+            tick_meter.stop()
+            if self.performance_settings.fps_counter:
+                cv2.putText(
+                    frame,
+                    f"FPS: {tick_meter.getFPS():.2f}",
+                    (10, 30),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    1,
+                    (0, 255, 0),
+                    2,
+                )
+                # print(f"FPS: {tick_meter.getFPS():.2f}")
 
             # Show the processed frame.
             cv2.imshow("Real-Time Face Blurring, Frame over Frame", frame)

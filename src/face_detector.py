@@ -68,6 +68,9 @@ class YuNetDetector(FaceDetector):
         # now convert to fractions of frame size
         bboxes /= np.array([*self.det_res, *self.det_res])
 
+        # make sure to clip to [0, 1]
+        bboxes = np.clip(bboxes, 0, 1)
+
         return bboxes.astype(np.float32)
 
 
