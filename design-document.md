@@ -8,7 +8,7 @@
 - [ ] Improve performance of blurring techniques (except for black square, which is very fast)
     - parituclarly guassian blur with circle
 - [ ] Add haars cascade face detection - Vance
-- [ ] Create a temporal tracking model
+- [ ] Create a temporal tracking model - Varun
 - [ ] Create custom frame by frame DNN
 - [x] Add an sample video and code to read from video instead of just camera
  
