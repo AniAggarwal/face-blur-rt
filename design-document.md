@@ -6,7 +6,7 @@
 - [x] Face recognition (that works) - Rohit
 - [ ] Add ellipse mode to better cover face with circular mode - Monish
 - [ ] Improve performance of blurring techniques (except for black square, which is very fast)
-    - parituclarly guassian blur with circle
+    - parituclarly guassian blur with circle - Vance
 - [ ] Add haars cascade face detection - Vance
 - [ ] Create a temporal tracking model - Varun
 - [ ] Create custom frame by frame DNN
