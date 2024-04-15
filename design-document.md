@@ -7,7 +7,7 @@
 - [ ] Add ellipse mode to better cover face with circular mode - Monish
 - [ ] Improve performance of blurring techniques (except for black square, which is very fast)
     - parituclarly guassian blur with circle - Vance
-- [ ] Add haars cascade face detection - Vance
+- [ ] Add different face detection models - Vance
 - [ ] Create a temporal tracking model - Varun
 - [ ] Create custom frame by frame DNN
 - [x] Add an sample video and code to read from video instead of just camera
