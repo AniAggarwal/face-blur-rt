@@ -3,7 +3,7 @@ from pathlib import Path
 
 from real_time_face_blurrer import RealTimeFaceBlurrerByFrame
 from blurrer import BlurringMethod, BlurringShape
-from face_detector import SCRFDDetector, YuNetDetector
+from face_detector import SCRFDDetector, YuNetDetector, ULFGLightDetector
 from face_recognizer import FaceRecognizer, SFRecognizer
 from performance_settings import PerformanceSettings
 
@@ -36,14 +36,16 @@ if __name__ == "__main__":
     # view_camera(0)
 
     detector_path = Path(
-        "./models/face_detection_yunet_2023mar.onnx"
+        "./models/ulfg-version-slim-320.onnx"
+        #"./models/face_detection_yunet_2023mar.onnx"
     ).resolve()
     recognizer_path = Path(
         "./models/face_recognition_sface_2021dec.onnx"
     ).resolve()
     known_faces_path = Path("./data/known-faces").resolve()
 
-    face_detection_model = YuNetDetector(detector_path)
+    face_detection_model = ULFGLightDetector(detector_path)
+    #face_detection_model = YuNetDetector(detector_path)
     face_recognition_model = SFRecognizer(
         recognizer_path, face_detection_model, known_faces_path
     )

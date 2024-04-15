@@ -6,6 +6,11 @@ import torch
 import numpy as np
 import cv2
 from scrfd.scrfd import SCRFD
+import utils
+
+# redundant imports?
+import onnx
+import onnxruntime as ort
 
 
 class FaceDetector(ABC):
@@ -73,6 +78,63 @@ class YuNetDetector(FaceDetector):
 
         return bboxes.astype(np.float32)
 
+# TODO: get the bounding boxes working correctly
+class ULFGLightDetector(FaceDetector):
+    def __init__(
+        self, model_path: str | Path, det_res: tuple[int, int] = (320, 240)
+    ) -> None:
+        super().__init__(model_path, det_res)
+
+        detector = onnx.load(model_path)
+        onnx.checker.check_model(detector)
+        onnx.helper.printable_graph(detector.graph)
+        #detector = backend.prepare(detector, device="CPU")  # default CPU
+
+        self.ort_session = ort.InferenceSession(model_path)
+        self.input_name = self.ort_session.get_inputs()[0].name
+
+    def detect_faces(self, frame: ndarray) -> ndarray:
+        image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        image = cv2.resize(image, self.det_res)
+        # save this for medium version
+        # image = cv2.resize(image, (640, 480))
+        image_mean = np.array([127, 127, 127])
+        image = (image - image_mean) / 128
+        image = np.transpose(image, [2, 0, 1])
+        image = np.expand_dims(image, axis=0)
+        image = image.astype(np.float32)
+
+        confidences, boxes = self.ort_session.run(None, {self.input_name: image})
+        threshold = 0.7
+        return self.predict(frame.shape[1], frame.shape[0], confidences, boxes, threshold)
+    
+    #currently not working
+    def predict(self, width, height, confidences, boxes, prob_threshold, iou_threshold=0.3, top_k=-1):
+        boxes = boxes[0]
+        confidences = confidences[0]
+        picked_box_probs = []
+        for class_index in range(1, confidences.shape[1]):
+            probs = confidences[:, class_index]
+            mask = probs > prob_threshold
+            probs = probs[mask]
+            if probs.shape[0] == 0:
+                continue
+            subset_boxes = boxes[mask, :]
+            box_probs = np.concatenate([subset_boxes, probs.reshape(-1, 1)], axis=1)
+            box_probs = utils.hard_nms(box_probs,
+                               iou_threshold=iou_threshold,
+                               top_k=top_k,
+                               )
+            picked_box_probs.append(box_probs)
+        if not picked_box_probs:
+            return np.array([]), np.array([]), np.array([])
+        picked_box_probs = np.concatenate(picked_box_probs)
+        picked_box_probs[:, 0] *= width
+        picked_box_probs[:, 1] *= height
+        picked_box_probs[:, 2] *= width
+        picked_box_probs[:, 3] *= height
+        return picked_box_probs[:, :4].astype(np.float32)
+
 
 class SCRFDDetector(FaceDetector):
     def __init__(
@@ -133,3 +195,4 @@ class SCRFDDetector(FaceDetector):
     #
     #     # Return list of detected faces' bounding boxes.
     #     return bboxes
+
