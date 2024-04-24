@@ -41,6 +41,8 @@ class RealTimeFaceBlurrerByFrame(RealTimeFaceBlurrer):
         tick_meter = cv2.TickMeter()
         tick_meter.reset()
 
+        # cv2.startWindowThread()
+
         while True:
             tick_meter.start()
 
