@@ -5,6 +5,7 @@ from real_time_face_blurrer import RealTimeFaceBlurrerByFrame
 from blurrer import BlurringMethod, BlurringShape
 from face_detector import SCRFDDetector, YuNetDetector
 from face_recognizer import FaceRecognizer, SFRecognizer
+from face_tracker import FaceTracker
 from performance_settings import PerformanceSettings
 
 
@@ -47,13 +48,14 @@ if __name__ == "__main__":
     face_recognition_model = SFRecognizer(
         recognizer_path, face_detection_model, known_faces_path
     )
+    face_tracker = FaceTracker(face_detection_model)
 
     performance_settings = PerformanceSettings((640, 480), 30)
 
     real_time_blurrer = RealTimeFaceBlurrerByFrame(
         video_source,
-        face_detection_model,
         face_recognition_model,
+        face_tracker,
         blur_method,
         blur_shape,
         performance_settings,
