@@ -95,8 +95,6 @@ class Blurrer:
                 y1 = max(0, min(y1, height))
                 y2 = max(0, min(y2, height))
                 
-
-                print(face)
                 face_region = frame[y1:y2, x1:x2]
                 face_region = cv2.GaussianBlur(face_region, (99, 99), 30)
                 frame[y1:y2, x1:x2] = face_region
