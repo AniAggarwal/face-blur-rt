@@ -25,11 +25,11 @@ def view_camera(video_source: int, window_name: str = "Camera") -> None:
 
 
 if __name__ == "__main__":
-    # video_source = 0  # Webcam source
-    video_source = str(Path("./data/demos/one-person.webm").resolve())
+    video_source = 0  # Webcam source
+    # video_source = str(Path("./data/demos/one-person.webm").resolve())
 
-    blur_method = BlurringMethod.LINE
-    # blur_method = BlurringMethod.BLACK
+    # blur_method = BlurringMethod.LINE
+    blur_method = BlurringMethod.BLACK
     # blur_method = BlurringMethod.GAUSSIAN
 
     blur_shape = BlurringShape.SQUARE

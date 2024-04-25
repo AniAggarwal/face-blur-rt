@@ -56,13 +56,13 @@ class RealTimeFaceBlurrerByFrame(RealTimeFaceBlurrer):
             frame = cv2.resize(frame, self.performance_settings.resolution)
 
             tracked_faces = self.face_tracker.track_faces(frame)
-
+            
             # rescale bboxes to original frame size
             tracked_faces = utils.rescale_boxes(
                 tracked_faces, self.performance_settings.resolution
             )
 
-            print(f"tracked {len(tracked_faces)} faces.")
+            # print(f"tracked {len(tracked_faces)} faces.")
 
             # TODO: uncomment this when face_recognizer is implemented
             # and not super slow
