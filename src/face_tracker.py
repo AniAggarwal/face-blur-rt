@@ -28,7 +28,7 @@ class FaceTracker():
         else:
             tracking_quality = self.tracker.update(frame)
 
-            if tracking_quality >= 8.75:
+            if tracking_quality >= 7:
                 frame_res = (frame.shape[0], frame.shape[1])
 
                 tracked_position =  self.tracker.get_position()
@@ -49,5 +49,5 @@ class FaceTracker():
             
             else:
                 self.is_tracking = False
-                return np.array([])
+                return self.face_detector.detect_faces(frame)
 
