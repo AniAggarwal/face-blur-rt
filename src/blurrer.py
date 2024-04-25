@@ -76,7 +76,7 @@ class Blurrer:
         for face in faces:
             if self.shape == BlurringShape.SQUARE:
                 x1, y1, x2, y2 = face
-                frame[y1:y2, x1:x2] = 0
+                frame = cv2.rectangle(frame, (x1, y1), (x2, y2), (0,0,0), -1) 
 
             elif self.shape == BlurringShape.CIRCLE:
                 x, y, radius = face
@@ -86,9 +86,17 @@ class Blurrer:
 
     def gaussian_blur(self, frame: ndarray, faces: ndarray) -> ndarray:
         """Apply a Gaussian blur to the faces in the frame."""
+        height, width = frame.shape[:2]
         for face in faces:
             if self.shape == BlurringShape.SQUARE:
                 x1, y1, x2, y2 = face
+                x1 = max(0, min(x1, width))
+                x2 = max(0, min(x2, width))
+                y1 = max(0, min(y1, height))
+                y2 = max(0, min(y2, height))
+                
+
+                print(face)
                 face_region = frame[y1:y2, x1:x2]
                 face_region = cv2.GaussianBlur(face_region, (99, 99), 30)
                 frame[y1:y2, x1:x2] = face_region
