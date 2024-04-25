@@ -11,6 +11,8 @@ class FaceTracker():
     def track_faces(self, frame):
         if not self.is_tracking:
             detected_faces = self.face_detector.detect_faces(frame)
+            detected_faces = utils.scale_bboxes(detected_faces, 1.2)
+
             if len(detected_faces) == 0:
                 return np.array([])
 
@@ -23,12 +25,14 @@ class FaceTracker():
 
             self.tracker.start_track(image = frame, bounding_box = detected_faces_rect)
             self.is_tracking = True
+            print("detecting")
             return detected_faces
             
         else:
             tracking_quality = self.tracker.update(frame)
 
-            if tracking_quality >= 7:
+            if tracking_quality >= 12:
+                print('tracking')
                 frame_res = (frame.shape[0], frame.shape[1])
 
                 tracked_position =  self.tracker.get_position()
@@ -49,5 +53,6 @@ class FaceTracker():
             
             else:
                 self.is_tracking = False
+                print('detecting')
                 return self.face_detector.detect_faces(frame)
 
