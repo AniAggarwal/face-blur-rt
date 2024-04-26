@@ -1,58 +1,40 @@
-import dlib
+import os
+os.environ['KMP_DUPLICATE_LIB_OK'] = 'TRUE'
+
 import numpy as np
+from sort.sort import *  # Assuming you have the SORT algorithm installed
 import utils
 
 class FaceTracker():
-    def __init__(self, face_detector, tracker = dlib.correlation_tracker()):
+    def __init__(self, face_detector, tracker=Sort(max_age=20, min_hits=1)):
         self.face_detector = face_detector
         self.tracker = tracker
-        self.is_tracking = False
+        self.b = None
 
     def track_faces(self, frame):
-        if not self.is_tracking:
-            detected_faces = self.face_detector.detect_faces(frame)
-            detected_faces = utils.scale_bboxes(detected_faces, 1.2)
+        detected_faces = self.face_detector.detect_faces(frame)
+        # detected_faces = utils.scale_bboxes(detected_faces, 1.2)
 
-            if len(detected_faces) == 0:
-                return np.array([])
-
-            # detect_faces returns normalized coordinates, so rescale them 
-            # to match the dimensions of frame
-            detected_faces_rescaled = utils.rescale_boxes(detected_faces, frame.shape[:2])
-            x1, y1, x2, y2 = detected_faces_rescaled[0]
-
-            detected_faces_rect = dlib.rectangle(left=x1, top=y1, right=x2, bottom=y2) 
-
-            self.tracker.start_track(image = frame, bounding_box = detected_faces_rect)
-            self.is_tracking = True
-            print("detecting")
-            return detected_faces
-            
+        # Convert detections to the format required by SORT: [x1, y1, x2, y2, confidence]
+        if len(detected_faces) > 0:
+            detections = utils.rescale_boxes(detected_faces, frame.shape[:2])
+            detections = np.hstack((detections, np.full((detections.shape[0], 1), 0.5)))  # add dummy confidences
         else:
-            tracking_quality = self.tracker.update(frame)
+            detections = np.empty((0, 5))
 
-            if tracking_quality >= 12:
-                print('tracking')
-                frame_res = (frame.shape[0], frame.shape[1])
+        # Update the tracker with the new frame detections and get the updated track information
+        
+        tracked_faces = self.tracker.update(detections)
+        print(tracked_faces[:, 4:])
+        tracked_faces = tracked_faces[:, :4]
 
-                tracked_position =  self.tracker.get_position()
+        # Normalize the tracked coordinates back to [0, 1] range
+        if tracked_faces.size > 0:
+            height, width = frame.shape[:2]
+            frame_res = np.array([height, width, height, width])
+            tracked_faces /= frame_res  # Normalize coordinates
+            return tracked_faces.astype(np.float32)
+        else:
+            return np.array([])  # Return empty array if no faces tracked
 
-                tl_corner = tracked_position.tl_corner()
-                br_corner = tracked_position.br_corner()
-
-                x1 = tl_corner.x
-                y1 = tl_corner.y
-                x2 = br_corner.x
-                y2 = br_corner.y
-
-                tracked_faces = np.array([[x1, y1, x2, y2]])
-
-                tracked_faces /= np.array([*frame_res, *frame_res])
-
-                return tracked_faces.astype(np.float32)
-            
-            else:
-                self.is_tracking = False
-                print('detecting')
-                return self.face_detector.detect_faces(frame)
-
+# Note: You will need to ensure that utils.rescale_boxes and the detect_faces method handle coordinates correctly.
