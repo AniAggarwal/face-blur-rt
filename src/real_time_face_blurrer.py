@@ -8,6 +8,7 @@ import utils
 from video_input_handler import VideoInputHandler
 from face_detector import FaceDetector
 from face_recognizer import FaceRecognizer
+from face_tracker import FaceTracker
 from blurrer import Blurrer, BlurringMethod, BlurringShape
 from performance_settings import PerformanceSettings
 
@@ -16,17 +17,21 @@ class RealTimeFaceBlurrer(ABC):
     def __init__(
         self,
         video_source: int | str,
-        face_detector: FaceDetector,
         face_recognizer: FaceRecognizer,
+        face_detector: FaceDetector,
+        face_tracker: FaceTracker,
         blurring_method: BlurringMethod,
         blurring_shape: BlurringShape,
         performance_settings: PerformanceSettings,
+        use_face_tracker: bool
     ):
         self.video_input = VideoInputHandler(video_source)
-        self.face_detector = face_detector
         self.face_recognizer = face_recognizer
+        self.face_detector = face_detector
+        self.face_tracker = face_tracker
         self.blurrer = Blurrer(blurring_method, blurring_shape)
         self.performance_settings = performance_settings
+        self.use_face_tracker = use_face_tracker
 
     @abstractmethod
     def process_stream(self):
@@ -41,6 +46,9 @@ class RealTimeFaceBlurrerByFrame(RealTimeFaceBlurrer):
         tick_meter = cv2.TickMeter()
         tick_meter.reset()
 
+        # cv2.startWindowThread()
+
+
         while True:
             tick_meter.start()
 
@@ -52,15 +60,21 @@ class RealTimeFaceBlurrerByFrame(RealTimeFaceBlurrer):
             # resize to target res
             frame = cv2.resize(frame, self.performance_settings.resolution)
 
-            # Detect and recognize faces
-            detected_faces = self.face_detector.detect_faces(frame)
+            faces = None
+            if self.use_face_tracker:
+
+                faces = self.face_tracker.track_faces(frame)
+            else:
+                print('not using tracker')
+                faces = self.face_detector.detect_faces(frame)
 
             # rescale bboxes to original frame size
-            detected_faces = utils.rescale_boxes(
-                detected_faces, self.performance_settings.resolution
+            faces = utils.rescale_boxes(
+                faces, self.performance_settings.resolution
             )
 
-            print(f"Detected {len(detected_faces)} faces.")
+
+            # print(f"tracked {len(tracked_faces)} faces.")
 
             # TODO: uncomment this when face_recognizer is implemented
             # and not super slow
@@ -78,7 +92,7 @@ class RealTimeFaceBlurrerByFrame(RealTimeFaceBlurrer):
             #         print("Unrecognized face")
 
             # Apply blurring to unrecognized faces
-            frame = self.blurrer.apply_blur(frame, detected_faces)
+            frame = self.blurrer.apply_blur(frame, faces)
 
             tick_meter.stop()
             if self.performance_settings.fps_counter:
