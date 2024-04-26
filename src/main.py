@@ -25,8 +25,9 @@ def view_camera(video_source: int, window_name: str = "Camera") -> None:
 
 
 if __name__ == "__main__":
-    video_source = 0  # Webcam source
-    # video_source = str(Path("./data/demos/one-person.webm").resolve())
+    # video_source = 0  # Webcam source
+    video_source = str(Path("./data/demos/one-person.webm").resolve())
+    # video_source = str(Path("./data/demos/GeoVision.webm").resolve())
 
     # blur_method = BlurringMethod.LINE
     blur_method = BlurringMethod.BLACK
@@ -50,14 +51,18 @@ if __name__ == "__main__":
     )
     face_tracker = FaceTracker(face_detection_model)
 
+    use_face_tracker = True
+
     performance_settings = PerformanceSettings((640, 480), 30)
 
     real_time_blurrer = RealTimeFaceBlurrerByFrame(
         video_source,
         face_recognition_model,
+        face_detection_model,
         face_tracker,
         blur_method,
         blur_shape,
         performance_settings,
+        use_face_tracker
     )
     real_time_blurrer.process_stream()
