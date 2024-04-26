@@ -48,7 +48,7 @@ class RealTimeFaceBlurrerByFrame(RealTimeFaceBlurrer):
 
         # cv2.startWindowThread()
 
-        i = 10
+
         while True:
             tick_meter.start()
 
@@ -62,13 +62,8 @@ class RealTimeFaceBlurrerByFrame(RealTimeFaceBlurrer):
 
             faces = None
             if self.use_face_tracker:
-                in_detection_mode = i == 10
-                if in_detection_mode:
-                    i = 0
-                else:
-                    i += 1
 
-                faces = self.face_tracker.track_faces(frame, in_detection_mode)
+                faces = self.face_tracker.track_faces(frame)
             else:
                 print('not using tracker')
                 faces = self.face_detector.detect_faces(frame)
