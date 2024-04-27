@@ -55,8 +55,9 @@ class Blurrer:
         for bbox in bboxes:
             x1, y1, x2, y2 = bbox
             center = (x1 + (x2 - x1) // 2, y1 + (y2 - y1) // 2)
-            radius = (x2 - x1) // 2
-            output.append([*center, radius])
+            min_axis = min((x2-x1) // 2, (y2-y1) // 2)
+            maj_axis = max((x2-x1) // 2, (y2-y1) // 2)
+            output.append([*center, maj_axis, min_axis])
 
         return np.array(output)
 
@@ -66,8 +67,8 @@ class Blurrer:
                 x1, y1, x2, y2 = face
                 cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 0, 0), 2)
             elif self.shape == BlurringShape.CIRCLE:
-                x, y, radius = face
-                cv2.circle(frame, (x, y), radius, (255, 0, 0), 2)
+                x, y, maj_axis, min_axis = face
+                cv2.ellipse(frame, (x, y), (maj_axis, min_axis), 90, 0, 360, (255, 0, 0), 2)
 
         return frame
 
@@ -79,8 +80,8 @@ class Blurrer:
                 frame = cv2.rectangle(frame, (x1, y1), (x2, y2), (0,0,0), -1) 
 
             elif self.shape == BlurringShape.CIRCLE:
-                x, y, radius = face
-                cv2.circle(frame, (x, y), radius, (0, 0, 0), -1)
+                x, y, maj_axis, min_axis = face
+                cv2.ellipse(frame, (x, y), (maj_axis, min_axis), 90, 0, 360, (0, 0, 0), -1)
 
         return frame
 
@@ -103,14 +104,15 @@ class Blurrer:
                 face_region = cv2.GaussianBlur(face_region, (99, 99), 30)
                 frame[y1:y2, x1:x2] = face_region
             elif self.shape == BlurringShape.CIRCLE:
-                x, y, radius = face
+                x, y, maj_axis, min_axis = face
                 center = (x, y)
                 # we will make a circular mask, grab that portion of the image, apply a blur
                 # and finally paste it back
                 mask = np.zeros_like(frame)
-                cv2.circle(mask, center, radius, (255, 255, 255), -1)
+                cv2.ellipse(mask, center, (maj_axis, min_axis), 90, 0, 360, (255, 255, 255), -1)
                 frame_blurred = cv2.GaussianBlur(frame, (99, 99), 30)
                 frame = np.where(mask > 0, frame_blurred, frame)
+
 
         return frame
 
