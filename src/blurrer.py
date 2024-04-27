@@ -91,11 +91,15 @@ class Blurrer:
             if self.shape == BlurringShape.SQUARE:
                 x1, y1, x2, y2 = face
                 x1 = max(0, min(x1, width))
-                x2 = max(0, min(x2, width))
                 y1 = max(0, min(y1, height))
+                x2 = max(0, min(x2, width))
                 y2 = max(0, min(y2, height))
-                
+                area = (x2-x1) * (y2-y1)
+                if area <= 0:
+                    return frame
+
                 face_region = frame[y1:y2, x1:x2]
+
                 face_region = cv2.GaussianBlur(face_region, (99, 99), 30)
                 frame[y1:y2, x1:x2] = face_region
             elif self.shape == BlurringShape.CIRCLE:
