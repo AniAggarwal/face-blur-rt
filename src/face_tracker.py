@@ -6,7 +6,7 @@ from sort.sort import *
 import utils
 
 class FaceTracker():
-    def __init__(self, face_detector, tracker=Sort(max_age=20, min_hits=1)):
+    def __init__(self, face_detector, tracker=Sort(max_age=10, max_bbox_age=5)):
         self.face_detector = face_detector
         self.tracker = tracker
         self.b = None
@@ -22,7 +22,6 @@ class FaceTracker():
             detections = np.empty((0, 5))
 
         # Update the tracker with the new frame detections and get the updated track information
-        
         tracked_faces = self.tracker.update(detections)
         tracked_faces = tracked_faces[:, :4]
 

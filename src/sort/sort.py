@@ -197,11 +197,12 @@ def associate_detections_to_trackers(detections,trackers,iou_threshold = 0.3):
 
 
 class Sort(object):
-  def __init__(self, max_age=1, min_hits=3, iou_threshold=0.3):
+  def __init__(self, max_age=1, max_bbox_age = 1, min_hits=3, iou_threshold=0.3):
     """
     Sets key parameters for SORT
     """
     self.max_age = max_age
+    self.max_bbox_age = max_bbox_age
     self.min_hits = min_hits
     self.iou_threshold = iou_threshold
     self.trackers = []
@@ -242,7 +243,7 @@ class Sort(object):
     i = len(self.trackers)
     for trk in reversed(self.trackers):
         d = trk.get_state()[0]
-        if (trk.time_since_update < self.max_age):
+        if (trk.time_since_update < self.max_bbox_age):
           ret.append(np.concatenate((d,[trk.id+1])).reshape(1,-1)) # +1 as MOT benchmark requires positive
         i -= 1
         # remove dead tracklet
