@@ -4,7 +4,7 @@
 
 - [x] FPS counter - Ani
 - [x] Face recognition (that works) - Rohit
-- [ ] Add ellipse mode to better cover face with circular mode - Monish
+- [x] Add ellipse mode to better cover face with circular mode - Monish
 - [ ] Improve performance of blurring techniques (except for black square, which is very fast)
     - parituclarly guassian blur with circle - Vance
 - [ ] Add different face detection models - Vance
