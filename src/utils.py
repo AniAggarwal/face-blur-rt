@@ -131,3 +131,17 @@ def bbox_overlap(bbox1, bbox2):
     return (bbox2[0] <= center_x1 <= bbox2[2]) and (
         bbox2[1] <= center_y1 <= bbox2[3]
     )
+
+
+def bboxes_to_csv(csv_path, bboxes, frame_num, time_elapsed):
+    output = []
+    for bbox in bboxes:
+        output.append(
+            f'"[{bbox[0]},{bbox[1]},{bbox[2]},{bbox[3]}]"'
+        )
+
+    str_output = (
+        f'"{frame_num}",{time_elapsed},' + ",".join(output) + "\n"
+    )
+    with open(csv_path, "a") as f:
+        f.write(str_output)

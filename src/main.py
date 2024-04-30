@@ -28,11 +28,15 @@ if __name__ == "__main__":
     # video_source = 0  # Webcam source
     # video_source = str(Path("./data/demos/one-person.webm").resolve())
     # video_source = str(Path("./data/demos/GeoVision.webm").resolve())
-    video_source = str(Path("./data/demos/multi.webm").resolve())
+    # video_source = str(Path("./data/demos/multi.webm").resolve())
 
-    # blur_method = BlurringMethod.LINE
+    video_path = Path("./data/demos/irl-stream-long-30fps.mp4").resolve()
+    video_source = str(video_path)
+    output_csv = video_path.with_suffix(".csv")
+
+    blur_method = BlurringMethod.LINE
     # blur_method = BlurringMethod.BLACK
-    blur_method = BlurringMethod.GAUSSIAN
+    # blur_method = BlurringMethod.GAUSSIAN
 
     blur_shape = BlurringShape.SQUARE
     # blur_shape = BlurringShape.CIRCLE
@@ -54,7 +58,7 @@ if __name__ == "__main__":
 
     use_face_tracker = True
 
-    performance_settings = PerformanceSettings((640, 480), 30)
+    performance_settings = PerformanceSettings((640, 480), 30, False, False, False)
 
     real_time_blurrer = RealTimeFaceBlurrerByFrame(
         video_source,
@@ -64,6 +68,7 @@ if __name__ == "__main__":
         blur_method,
         blur_shape,
         performance_settings,
-        use_face_tracker
+        use_face_tracker,
+        output_csv,
     )
     real_time_blurrer.process_stream()

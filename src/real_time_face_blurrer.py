@@ -3,6 +3,7 @@ import cv2
 import numpy as np
 from numpy import ndarray
 from pathlib import Path
+import torch
 
 import utils
 from video_input_handler import VideoInputHandler
@@ -23,7 +24,8 @@ class RealTimeFaceBlurrer(ABC):
         blurring_method: BlurringMethod,
         blurring_shape: BlurringShape,
         performance_settings: PerformanceSettings,
-        use_face_tracker: bool
+        use_face_tracker: bool,
+        output_csv: Path | None = None,
     ):
         self.video_input = VideoInputHandler(video_source)
         self.face_recognizer = face_recognizer
@@ -32,6 +34,7 @@ class RealTimeFaceBlurrer(ABC):
         self.blurrer = Blurrer(blurring_method, blurring_shape)
         self.performance_settings = performance_settings
         self.use_face_tracker = use_face_tracker
+        self.output_csv = output_csv
 
     @abstractmethod
     def process_stream(self):
@@ -43,13 +46,15 @@ class RealTimeFaceBlurrerByFrame(RealTimeFaceBlurrer):
     def process_stream(self):
         """Process the video stream and apply face blurring in real-time."""
 
+        frame_num = 0
         tick_meter = cv2.TickMeter()
         tick_meter.reset()
 
         # cv2.startWindowThread()
 
-
         while True:
+            time_start = torch.cuda.Event(enable_timing=True)
+            time_start.record()
             tick_meter.start()
 
             ret, frame = self.video_input.get_frame()
@@ -65,14 +70,13 @@ class RealTimeFaceBlurrerByFrame(RealTimeFaceBlurrer):
 
                 faces = self.face_tracker.track_faces(frame)
             else:
-                print('not using tracker')
+                print("not using tracker")
                 faces = self.face_detector.detect_faces(frame)
 
             # rescale bboxes to original frame size
             faces = utils.rescale_boxes(
                 faces, self.performance_settings.resolution
             )
-
 
             # print(f"tracked {len(tracked_faces)} faces.")
 
@@ -92,9 +96,21 @@ class RealTimeFaceBlurrerByFrame(RealTimeFaceBlurrer):
             #         print("Unrecognized face")
 
             # Apply blurring to unrecognized faces
-            frame = self.blurrer.apply_blur(frame, faces)
+            if self.performance_settings.apply_blur:
+                frame = self.blurrer.apply_blur(frame, faces)
 
             tick_meter.stop()
+            time_end = torch.cuda.Event(enable_timing=True)
+            time_end.record()
+            torch.cuda.synchronize()
+            time_elapsed = time_start.elapsed_time(time_end)
+
+            # output to csv if specified
+            if self.output_csv is not None:
+                utils.bboxes_to_csv(
+                    self.output_csv, faces, frame_num, time_elapsed
+                )
+
             if self.performance_settings.fps_counter:
                 cv2.putText(
                     frame,
@@ -108,8 +124,10 @@ class RealTimeFaceBlurrerByFrame(RealTimeFaceBlurrer):
                 # print(f"FPS: {tick_meter.getFPS():.2f}")
 
             # Show the processed frame.
-            cv2.imshow("Real-Time Face Blurring, Frame over Frame", frame)
+            if self.performance_settings.display_video:
+                cv2.imshow("Real-Time Face Blurring, Frame over Frame", frame)
 
+            frame_num += 1
             # Break loop with 'q' key.
             if cv2.waitKey(1) & 0xFF == ord("q"):
                 break
