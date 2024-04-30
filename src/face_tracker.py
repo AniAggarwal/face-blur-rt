@@ -30,6 +30,7 @@ class FaceTracker():
             height, width = frame.shape[:2]
             frame_res = np.array([height, width, height, width])
             tracked_faces /= frame_res 
-            return tracked_faces.astype(np.float32)
+            tracked_faces = tracked_faces.astype(np.float32)
+            return np.clip(tracked_faces, 0, 1)
         else:
             return np.array([])  

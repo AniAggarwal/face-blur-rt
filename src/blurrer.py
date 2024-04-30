@@ -91,10 +91,6 @@ class Blurrer:
         for face in faces:
             if self.shape == BlurringShape.SQUARE:
                 x1, y1, x2, y2 = face
-                x1 = max(0, min(x1, width))
-                y1 = max(0, min(y1, height))
-                x2 = max(0, min(x2, width))
-                y2 = max(0, min(y2, height))
                 area = (x2-x1) * (y2-y1)
                 if area <= 0:
                     return frame

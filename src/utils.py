@@ -26,6 +26,7 @@ def rescale_boxes(boxes: ndarray, original_size: tuple[int, int]):
 
     return scaled_boxes.astype(int)
 
+
 import numpy as np
 
 
@@ -46,26 +47,26 @@ def scale_bboxes(bboxes, scale=1.2):
 
     # Initialize the output array
     upscaled_bboxes = np.zeros_like(bboxes)
-    
+
     # Process each bounding box
     for i, bbox in enumerate(bboxes):
         # Extract the corners
         xmin, ymin, xmax, ymax = bbox
-        
+
         # Calculate the center of the bounding box
         center_x = (xmin + xmax) / 2
         center_y = (ymin + ymax) / 2
-        
+
         # Calculate new half widths/heights
         half_width = (xmax - xmin) * scale / 2
         half_height = (ymax - ymin) * scale / 2
-        
+
         # Define the new corners based on the new size and same center
         new_xmin = center_x - half_width
         new_ymin = center_y - half_height
         new_xmax = center_x + half_width
         new_ymax = center_y + half_height
-        
+
         # Store the new bounding box
         upscaled_bboxes[i] = [new_xmin, new_ymin, new_xmax, new_ymax]
 
@@ -88,6 +89,7 @@ def dlib_rect_to_bbox(dlib_rect):
     y2 = dlib_rect.bottom()
     return np.array([x1, y1, x2, y2])
 
+
 def bbox_to_dlib_rect(bbox_array):
     """
     Converts an array or list containing bounding box coordinates [x1, y1, x2, y2]
@@ -100,10 +102,15 @@ def bbox_to_dlib_rect(bbox_array):
     - A dlib.rectangle object defined by the provided coordinates.
     """
     if len(bbox_array) != 4:
-        raise ValueError("Input array must have four elements [x1, y1, x2, y2]")
-    
+        raise ValueError(
+            "Input array must have four elements [x1, y1, x2, y2]"
+        )
+
     x1, y1, x2, y2 = bbox_array
-    return dlib.rectangle(left=int(x1), top=int(y1), right=int(x2), bottom=int(y2))
+    return dlib.rectangle(
+        left=int(x1), top=int(y1), right=int(x2), bottom=int(y2)
+    )
+
 
 def bbox_overlap(bbox1, bbox2):
     """
@@ -121,5 +128,6 @@ def bbox_overlap(bbox1, bbox2):
     center_y1 = (bbox1[1] + bbox1[3]) / 2
 
     # Check if the center of bbox1 is within bbox2
-    return (bbox2[0] <= center_x1 <= bbox2[2]) and (bbox2[1] <= center_y1 <= bbox2[3])
-
+    return (bbox2[0] <= center_x1 <= bbox2[2]) and (
+        bbox2[1] <= center_y1 <= bbox2[3]
+    )
