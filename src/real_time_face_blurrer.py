@@ -93,7 +93,7 @@ class RealTimeFaceBlurrerByFrame(RealTimeFaceBlurrer):
                     # Apply blurring if face is unknown
                     if recognized_dict[i] is None:
                         unknown_faces.append(face)
-                    if self.performance_settings.enable_labels:
+                    if self.performance_settings.enable_labels and recognized_dict[i] is not None:
                         (w, h), _ = cv2.getTextSize(
                             recognized_dict[i], cv2.FONT_HERSHEY_SIMPLEX, 0.7, 2
                         )
