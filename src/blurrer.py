@@ -97,6 +97,15 @@ class Blurrer:
                 # print(blurred_face.shape, blurred_face.dtype, blurred_face)
                 blurred_face = cv2.blur(blurred_face, (kernel_size, kernel_size))
                 frame[y1:y2, x1:x2] = blurred_face
+
+            elif self.shape == BlurringShape.CIRCLE:
+                x, y, maj_axis, min_axis = face
+                center = (x, y)
+
+                mask = np.zeros_like(frame)
+                
+                cv2.ellipse(mask, center, (maj_axis, min_axis), 90, 0, 360, (255, 255, 255), -1)
+                frame = np.where(mask > 0, cv2.blur(frame, (kernel_size, kernel_size)), frame)
         return frame
 
     def gaussian_blur(self, frame: ndarray, faces: ndarray) -> ndarray:
