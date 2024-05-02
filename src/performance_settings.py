@@ -9,7 +9,9 @@ class PerformanceSettings:
         resolution: tuple[int, int],
         target_fps: int,
         fps_counter: bool = True,
+        enable_labels: bool = True,
     ) -> None:
         self.resolution = resolution
         self.target_fps = target_fps
         self.fps_counter = fps_counter
+        self.enable_labels = enable_labels

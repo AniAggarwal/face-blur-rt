@@ -9,9 +9,10 @@ from face_tracker import FaceTracker
 from performance_settings import PerformanceSettings
 
 
-def view_camera(video_source: int, window_name: str = "Camera") -> None:
+def view_camera(video_source, window_name: str = "Camera") -> None:
     """View the camera feed in a window."""
-    cap = cv2.VideoCapture(video_source)
+    cap = cv2.VideoCapture()
+    cap.open(video_source)
 
     while True:
         ret, frame = cap.read()
@@ -39,17 +40,16 @@ if __name__ == "__main__":
     blur_shape = BlurringShape.CIRCLE
     # view_camera(0)
 
-    detector_path = Path(
-        "./models/face_detection_yunet_2023mar.onnx"
-    ).resolve()
-    recognizer_path = Path(
-        "./models/face_recognition_sface_2021dec.onnx"
-    ).resolve()
+    detector_path = Path("./models/face_detection_yunet_2023mar.onnx").resolve()
+    recognizer_path = Path("./models/face_recognition_sface_2021dec.onnx").resolve()
     known_faces_path = Path("./data/known-faces").resolve()
 
     face_detection_model = YuNetDetector(detector_path)
+    # If a detected face has a cosine similarity less than this value for all known faces
+    # it will be blurred
+    cosine_threshold = 0.2
     face_recognition_model = SFRecognizer(
-        recognizer_path, face_detection_model, known_faces_path
+        recognizer_path, face_detection_model, known_faces_path, cosine_threshold
     )
     face_tracker = FaceTracker(face_detection_model)
 
@@ -65,6 +65,6 @@ if __name__ == "__main__":
         blur_method,
         blur_shape,
         performance_settings,
-        use_face_tracker
+        use_face_tracker,
     )
     real_time_blurrer.process_stream()
