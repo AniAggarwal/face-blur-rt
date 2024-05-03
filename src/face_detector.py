@@ -35,7 +35,7 @@ class FaceDetector(ABC):
 class YuNetDetector(FaceDetector):
 
     def __init__(
-        self, model_path: str | Path, det_res: tuple[int, int] = (320, 320)
+        self, model_path: str | Path, det_res: tuple[int, int] = (640, 480)
     ) -> None:
         super().__init__(model_path, det_res)
         self.detector = cv2.FaceDetectorYN.create(
@@ -61,6 +61,7 @@ class YuNetDetector(FaceDetector):
 
         # for now, discard everything but the face bounding box
         bboxes = faces[:, :4]
+        
         # convert width and height to x2, y2
         bboxes[:, 2] += bboxes[:, 0]
         bboxes[:, 3] += bboxes[:, 1]
@@ -71,7 +72,7 @@ class YuNetDetector(FaceDetector):
         # make sure to clip to [0, 1]
         bboxes = np.clip(bboxes, 0, 1)
 
-        return bboxes.astype(np.float32)
+        return bboxes.astype(np.float32), faces
 
 
 class SCRFDDetector(FaceDetector):

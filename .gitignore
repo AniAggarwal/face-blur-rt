@@ -1,5 +1,6 @@
 # ignore cloned subrepos
 git-subrepos/
+data/datasets/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

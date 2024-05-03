@@ -11,6 +11,7 @@ class BlurringMethod(Enum):
     GAUSSIAN = auto()
     PIXELATE = auto()
     MOSAIC = auto()
+    BOX = auto()
 
 
 class BlurringShape(Enum):
@@ -41,7 +42,8 @@ class Blurrer:
             frame = self.black_blur(frame, faces)
         elif self.method == BlurringMethod.GAUSSIAN:
             frame = self.gaussian_blur(frame, faces)
-
+        elif self.method == BlurringMethod.BOX:
+            frame = self.box_blur(frame, faces)
         # elif self.method == BlurringMethod.PIXELATE:
         #     frame = self.pixelate_blur(frame, faces)
         # elif self.method == BlurringMethod.MOSAIC:
@@ -83,6 +85,27 @@ class Blurrer:
                 x, y, maj_axis, min_axis = face
                 cv2.ellipse(frame, (x, y), (maj_axis, min_axis), 90, 0, 360, (0, 0, 0), -1)
 
+        return frame
+    
+    def box_blur(self, frame: ndarray, faces: ndarray, kernel_size=35):
+        """Apply a black box blur to the faces in the frame."""
+        for face in faces:
+            if self.shape == BlurringShape.SQUARE:
+                x1, y1, x2, y2 = face
+                # make a copy of the face region
+                blurred_face = frame[y1:y2, x1:x2]
+                # print(blurred_face.shape, blurred_face.dtype, blurred_face)
+                blurred_face = cv2.blur(blurred_face, (kernel_size, kernel_size))
+                frame[y1:y2, x1:x2] = blurred_face
+
+            elif self.shape == BlurringShape.CIRCLE:
+                x, y, maj_axis, min_axis = face
+                center = (x, y)
+
+                mask = np.zeros_like(frame)
+                
+                cv2.ellipse(mask, center, (maj_axis, min_axis), 90, 0, 360, (255, 255, 255), -1)
+                frame = np.where(mask > 0, cv2.blur(frame, (kernel_size, kernel_size)), frame)
         return frame
 
     def gaussian_blur(self, frame: ndarray, faces: ndarray) -> ndarray:

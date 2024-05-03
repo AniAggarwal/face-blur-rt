@@ -15,6 +15,7 @@ from performance_settings import PerformanceSettings
 
 
 class RealTimeFaceBlurrer(ABC):
+
     def __init__(
         self,
         video_source: int | str,
@@ -43,6 +44,7 @@ class RealTimeFaceBlurrer(ABC):
 
 
 class RealTimeFaceBlurrerByFrame(RealTimeFaceBlurrer):
+
     def process_stream(self):
         """Process the video stream and apply face blurring in real-time."""
 
@@ -68,35 +70,57 @@ class RealTimeFaceBlurrerByFrame(RealTimeFaceBlurrer):
             bboxes = None
             if self.use_face_tracker:
                 bboxes = self.face_tracker.track_faces(frame)
+                recognition_faces = bboxes[1]  # get the features
             else:
                 print("not using tracker")
                 bboxes = self.face_detector.detect_faces(frame)
-
+                num, recognition_faces = self.face_detector.detector.detect(
+                    cv2.resize(frame, self.face_detector.det_res)
+                )
             # rescale bboxes to original frame size
-            faces = utils.rescale_boxes(
-                bboxes, self.performance_settings.resolution
+            if len(faces) != 0:
+                faces = utils.rescale_boxes(
+                    faces[0], self.performance_settings.resolution
+                )
+
+            print(f"tracked {len(faces)} faces.")
+            if recognition_faces is None:
+                recognition_faces = []
+            recognition_faces = [face for face in recognition_faces if face is not None]
+
+            recognized_dict = self.face_recognizer.recognize_faces(
+                frame, recognition_faces
             )
 
-            # print(f"tracked {len(tracked_faces)} faces.")
-
-            # TODO: uncomment this when face_recognizer is implemented
-            # and not super slow
-
-            # recognized_dict = self.face_recognizer.recognize_faces(
-            #     frame, detected_faces
-            # )
-            #
-            # for i, face in enumerate(detected_faces):
-            #     if i in recognized_dict:
-            #         print("Recognized face:", recognized_dict[i])
-            #         # Apply blurring to recognized faces
-            #         frame = self.blurrer.apply_blur(frame, face.reshape(1, -1))
-            #     else:
-            #         print("Unrecognized face")
-
+            unknown_faces = []
+            for i, face in enumerate(faces):
+                if i in recognized_dict:
+                    print("Recognized face:", recognized_dict[i])
+                    # Apply blurring if face is unknown
+                    if recognized_dict[i] is None:
+                        unknown_faces.append(face)
+                    if self.performance_settings.enable_labels and recognized_dict[i] is not None:
+                        (w, h), _ = cv2.getTextSize(
+                            recognized_dict[i], cv2.FONT_HERSHEY_SIMPLEX, 0.7, 2
+                        )
+                        frame = cv2.rectangle(
+                            frame,
+                            (face[0], face[1]),
+                            (face[0] + w, face[1] - h - 10),
+                            (255, 0, 0),
+                            -1,
+                        )
+                        cv2.putText(
+                            frame,
+                            recognized_dict[i],
+                            (face[0], face[1] - 10),
+                            cv2.FONT_HERSHEY_SIMPLEX,
+                            0.7,
+                            (255, 255, 255),
+                            2,
+                        )
             # Apply blurring to unrecognized faces
-            if self.performance_settings.apply_blur:
-                frame = self.blurrer.apply_blur(frame, faces)
+            frame = self.blurrer.apply_blur(frame, unknown_faces)
 
             tick_meter.stop()
             time_end = torch.cuda.Event(enable_timing=True)
