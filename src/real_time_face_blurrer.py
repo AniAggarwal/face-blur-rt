@@ -65,17 +65,16 @@ class RealTimeFaceBlurrerByFrame(RealTimeFaceBlurrer):
             # resize to target res
             frame = cv2.resize(frame, self.performance_settings.resolution)
 
-            faces = None
+            bboxes = None
             if self.use_face_tracker:
-
-                faces = self.face_tracker.track_faces(frame)
+                bboxes = self.face_tracker.track_faces(frame)
             else:
                 print("not using tracker")
-                faces = self.face_detector.detect_faces(frame)
+                bboxes = self.face_detector.detect_faces(frame)
 
             # rescale bboxes to original frame size
             faces = utils.rescale_boxes(
-                faces, self.performance_settings.resolution
+                bboxes, self.performance_settings.resolution
             )
 
             # print(f"tracked {len(tracked_faces)} faces.")
@@ -108,7 +107,7 @@ class RealTimeFaceBlurrerByFrame(RealTimeFaceBlurrer):
             # output to csv if specified
             if self.output_csv is not None:
                 utils.bboxes_to_csv(
-                    self.output_csv, faces, frame_num, time_elapsed
+                    self.output_csv, bboxes, frame_num, time_elapsed
                 )
 
             if self.performance_settings.fps_counter:

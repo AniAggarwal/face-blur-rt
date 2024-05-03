@@ -30,9 +30,28 @@ if __name__ == "__main__":
     # video_source = str(Path("./data/demos/GeoVision.webm").resolve())
     # video_source = str(Path("./data/demos/multi.webm").resolve())
 
-    video_path = Path("./data/demos/irl-stream-long-30fps.mp4").resolve()
-    video_source = str(video_path)
-    output_csv = video_path.with_suffix(".csv")
+    video_source = str(
+        Path("./data/demos/irl-stream-long-30fps.mp4").resolve()
+    )
+    # set to None to not output to CSV
+    output_csv = Path(
+        "./data/demos/irl-stream-long-30fps-ours-detection-only.csv"
+    ).resolve()
+    # output_csv = None
+
+    if output_csv is not None:
+        if output_csv.exists():
+            if (
+                input("Output CSV file already exists. Overwrite? (y/n): ")
+                == "y"
+            ):
+                output_csv.unlink()
+            else:
+                print("Appending to existing CSV file.")
+        print("Will output to CSV file:", output_csv)
+
+        with open(output_csv, "w") as f:
+            f.write('"frame_num","time_elapsed","bboxes"\n')
 
     blur_method = BlurringMethod.LINE
     # blur_method = BlurringMethod.BLACK
@@ -56,9 +75,11 @@ if __name__ == "__main__":
     )
     face_tracker = FaceTracker(face_detection_model)
 
-    use_face_tracker = True
+    use_face_tracker = False
 
-    performance_settings = PerformanceSettings((640, 480), 30, False, False, False)
+    performance_settings = PerformanceSettings(
+        (640, 480), 30, False, False, False
+    )
 
     real_time_blurrer = RealTimeFaceBlurrerByFrame(
         video_source,
