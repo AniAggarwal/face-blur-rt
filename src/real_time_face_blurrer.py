@@ -71,19 +71,14 @@ class RealTimeFaceBlurrerByFrame(RealTimeFaceBlurrer):
             if self.use_face_tracker:
                 bboxes, features = self.face_tracker.track_faces(frame)
             else:
-                print("not using tracker")
                 bboxes, features = self.face_detector.detect_faces(frame)
-                # _, recognition_faces = self.face_detector.detector.detect(
-                #     cv2.resize(frame, self.face_detector.det_res)
-                # )
 
             # rescale bboxes to original frame size
-            # if len(bboxes) != 0:
             faces = utils.rescale_boxes(
                 bboxes, self.performance_settings.resolution
             )
 
-            print(f"tracked {len(faces)} faces.")
+            # print(f"Found {len(faces)} faces.")
             if features is None:
                 features = []
             features = [face for face in features if face is not None]
@@ -92,40 +87,15 @@ class RealTimeFaceBlurrerByFrame(RealTimeFaceBlurrer):
                 frame, features
             )
 
-            unknown_faces = []
-            for i, face in enumerate(faces):
-                if i in recognized_dict:
-                    print("Recognized face:", recognized_dict[i])
-                    # Apply blurring if face is unknown
-                    if recognized_dict[i] is None:
-                        unknown_faces.append(face)
-                    if (
-                        self.performance_settings.enable_labels
-                        and recognized_dict[i] is not None
-                    ):
-                        (w, h), _ = cv2.getTextSize(
-                            recognized_dict[i],
-                            cv2.FONT_HERSHEY_SIMPLEX,
-                            0.7,
-                            2,
-                        )
-                        frame = cv2.rectangle(
-                            frame,
-                            (face[0], face[1]),
-                            (face[0] + w, face[1] - h - 10),
-                            (255, 0, 0),
-                            -1,
-                        )
-                        cv2.putText(
-                            frame,
-                            recognized_dict[i],
-                            (face[0], face[1] - 10),
-                            cv2.FONT_HERSHEY_SIMPLEX,
-                            0.7,
-                            (255, 255, 255),
-                            2,
-                        )
+            if self.performance_settings.enable_labels:
+                frame = utils.draw_labels(frame, faces, recognized_dict)
+
             # Apply blurring to unrecognized faces
+            unknown_faces = [
+                face
+                for i, face in enumerate(faces)
+                if recognized_dict[i] is None
+            ]
             frame = self.blurrer.apply_blur(frame, unknown_faces)
 
             tick_meter.stop()

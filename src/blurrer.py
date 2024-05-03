@@ -25,7 +25,7 @@ class Blurrer:
         self.method = method
         self.shape = shape
 
-    def apply_blur(self, frame: ndarray, faces: ndarray) -> ndarray:
+    def apply_blur(self, frame: ndarray, faces: list | ndarray) -> ndarray:
         """Apply the specified blurring technique to the faces in the frame."""
         if (
             self.shape == BlurringShape.NONE
@@ -51,43 +51,61 @@ class Blurrer:
 
         return frame
 
-    def get_circle_center(self, bboxes: ndarray) -> ndarray:
+    def get_circle_center(self, bboxes: list | ndarray) -> ndarray:
         output = []
 
         for bbox in bboxes:
             x1, y1, x2, y2 = bbox
             center = (x1 + (x2 - x1) // 2, y1 + (y2 - y1) // 2)
-            min_axis = min((x2-x1) // 2, (y2-y1) // 2)
-            maj_axis = max((x2-x1) // 2, (y2-y1) // 2)
+            min_axis = min((x2 - x1) // 2, (y2 - y1) // 2)
+            maj_axis = max((x2 - x1) // 2, (y2 - y1) // 2)
             output.append([*center, maj_axis, min_axis])
 
         return np.array(output)
 
-    def line_blur(self, frame: ndarray, faces: ndarray) -> ndarray:
+    def line_blur(self, frame: ndarray, faces: list | ndarray) -> ndarray:
         for face in faces:
             if self.shape == BlurringShape.SQUARE:
                 x1, y1, x2, y2 = face
                 cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 0, 0), 2)
             elif self.shape == BlurringShape.CIRCLE:
                 x, y, maj_axis, min_axis = face
-                cv2.ellipse(frame, (x, y), (maj_axis, min_axis), 90, 0, 360, (255, 0, 0), 2)
+                cv2.ellipse(
+                    frame,
+                    (x, y),
+                    (maj_axis, min_axis),
+                    90,
+                    0,
+                    360,
+                    (255, 0, 0),
+                    2,
+                )
 
         return frame
 
-    def black_blur(self, frame: ndarray, faces: ndarray) -> ndarray:
+    def black_blur(self, frame: ndarray, faces: list | ndarray) -> ndarray:
         """Apply a black box blur to the faces in the frame."""
         for face in faces:
             if self.shape == BlurringShape.SQUARE:
                 x1, y1, x2, y2 = face
-                frame = cv2.rectangle(frame, (x1, y1), (x2, y2), (0,0,0), -1) 
+                frame = cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 0), -1)
 
             elif self.shape == BlurringShape.CIRCLE:
                 x, y, maj_axis, min_axis = face
-                cv2.ellipse(frame, (x, y), (maj_axis, min_axis), 90, 0, 360, (0, 0, 0), -1)
+                cv2.ellipse(
+                    frame,
+                    (x, y),
+                    (maj_axis, min_axis),
+                    90,
+                    0,
+                    360,
+                    (0, 0, 0),
+                    -1,
+                )
 
         return frame
-    
-    def box_blur(self, frame: ndarray, faces: ndarray, kernel_size=35):
+
+    def box_blur(self, frame: ndarray, faces: list | ndarray, kernel_size=35):
         """Apply a black box blur to the faces in the frame."""
         for face in faces:
             if self.shape == BlurringShape.SQUARE:
@@ -95,7 +113,9 @@ class Blurrer:
                 # make a copy of the face region
                 blurred_face = frame[y1:y2, x1:x2]
                 # print(blurred_face.shape, blurred_face.dtype, blurred_face)
-                blurred_face = cv2.blur(blurred_face, (kernel_size, kernel_size))
+                blurred_face = cv2.blur(
+                    blurred_face, (kernel_size, kernel_size)
+                )
                 frame[y1:y2, x1:x2] = blurred_face
 
             elif self.shape == BlurringShape.CIRCLE:
@@ -103,18 +123,31 @@ class Blurrer:
                 center = (x, y)
 
                 mask = np.zeros_like(frame)
-                
-                cv2.ellipse(mask, center, (maj_axis, min_axis), 90, 0, 360, (255, 255, 255), -1)
-                frame = np.where(mask > 0, cv2.blur(frame, (kernel_size, kernel_size)), frame)
+
+                cv2.ellipse(
+                    mask,
+                    center,
+                    (maj_axis, min_axis),
+                    90,
+                    0,
+                    360,
+                    (255, 255, 255),
+                    -1,
+                )
+                frame = np.where(
+                    mask > 0,
+                    cv2.blur(frame, (kernel_size, kernel_size)),
+                    frame,
+                )
         return frame
 
-    def gaussian_blur(self, frame: ndarray, faces: ndarray) -> ndarray:
+    def gaussian_blur(self, frame: ndarray, faces: list | ndarray) -> ndarray:
         """Apply a Gaussian blur to the faces in the frame."""
         height, width = frame.shape[:2]
         for face in faces:
             if self.shape == BlurringShape.SQUARE:
                 x1, y1, x2, y2 = face
-                area = (x2-x1) * (y2-y1)
+                area = (x2 - x1) * (y2 - y1)
                 if area <= 0:
                     return frame
 
@@ -128,10 +161,18 @@ class Blurrer:
                 # we will make a circular mask, grab that portion of the image, apply a blur
                 # and finally paste it back
                 mask = np.zeros_like(frame)
-                cv2.ellipse(mask, center, (maj_axis, min_axis), 90, 0, 360, (255, 255, 255), -1)
+                cv2.ellipse(
+                    mask,
+                    center,
+                    (maj_axis, min_axis),
+                    90,
+                    0,
+                    360,
+                    (255, 255, 255),
+                    -1,
+                )
                 frame_blurred = cv2.GaussianBlur(frame, (99, 99), 30)
                 frame = np.where(mask > 0, frame_blurred, frame)
-
 
         return frame
 

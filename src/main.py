@@ -70,7 +70,7 @@ if __name__ == "__main__":
     face_detection_model = YuNetDetector(detector_path)
     # If a detected face has a cosine similarity less than this value for all known faces
     # it will be blurred
-    cosine_threshold = 0.2
+    cosine_threshold = 0.30
     face_recognition_model = SFRecognizer(
         recognizer_path, face_detection_model, known_faces_path, cosine_threshold
     )

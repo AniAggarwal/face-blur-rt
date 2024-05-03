@@ -1,4 +1,5 @@
 import numpy as np
+import cv2
 from numpy import ndarray
 import dlib
 
@@ -71,6 +72,47 @@ def scale_bboxes(bboxes, scale=1.2):
         upscaled_bboxes[i] = [new_xmin, new_ymin, new_xmax, new_ymax]
 
     return upscaled_bboxes
+
+
+def draw_labels(
+    frame: np.ndarray, faces: np.ndarray, labels: dict
+) -> np.ndarray:
+    """Draws labels with text for each face in the frame.
+
+    Args:
+        frame: The frame to draw the labels on.
+        faces: An array of bounding boxes for the detected faces as pixel values.
+        labels: A dictionary mapping the index of each face to its label.
+
+    Returns:
+        The frame with the labels drawn on it.
+    """
+    for i, face in enumerate(faces):
+        name = labels.get(i, None)
+        if name is not None:
+            (w, h), _ = cv2.getTextSize(
+                name,
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.7,
+                2,
+            )
+            frame = cv2.rectangle(
+                frame,
+                (face[0], face[1]),
+                (face[0] + w, face[1] - h - 10),
+                (255, 0, 0),
+                -1,
+            )
+            cv2.putText(
+                frame,
+                name,
+                (face[0], face[1] - 10),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.7,
+                (255, 255, 255),
+                2,
+            )
+    return frame
 
 
 def dlib_rect_to_bbox(dlib_rect):
