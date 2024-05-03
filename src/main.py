@@ -26,7 +26,7 @@ def view_camera(video_source, window_name: str = "Camera") -> None:
 
 
 if __name__ == "__main__":
-    video_source = 0  # Webcam source
+    # video_source = 0  # Webcam source
     # video_source = str(Path("./data/demos/one-person.webm").resolve())
     # video_source = str(Path("./data/demos/GeoVision.webm").resolve())
     # video_source = str(Path("./data/demos/multi.webm").resolve())
@@ -35,10 +35,10 @@ if __name__ == "__main__":
         Path("./data/demos/irl-stream-long-30fps.mp4").resolve()
     )
     # set to None to not output to CSV
-    output_csv = Path(
-        "./data/demos/irl-stream-long-30fps-ours-detection-only.csv"
-    ).resolve()
-    # output_csv = None
+    # output_csv = Path(
+    #     "./data/demos/irl-stream-long-30fps-ours-detection-only.csv"
+    # ).resolve()
+    output_csv = None
 
     if output_csv is not None:
         if output_csv.exists():
@@ -79,7 +79,7 @@ if __name__ == "__main__":
     use_face_tracker = False
 
     performance_settings = PerformanceSettings(
-        (640, 480), 30, False, False, False
+        (640, 480), 30, True, True, True, True
     )
 
     real_time_blurrer = RealTimeFaceBlurrerByFrame(

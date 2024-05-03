@@ -69,27 +69,27 @@ class RealTimeFaceBlurrerByFrame(RealTimeFaceBlurrer):
 
             bboxes = None
             if self.use_face_tracker:
-                bboxes = self.face_tracker.track_faces(frame)
-                recognition_faces = bboxes[1]  # get the features
+                bboxes, features = self.face_tracker.track_faces(frame)
             else:
                 print("not using tracker")
-                bboxes = self.face_detector.detect_faces(frame)
-                num, recognition_faces = self.face_detector.detector.detect(
-                    cv2.resize(frame, self.face_detector.det_res)
-                )
+                bboxes, features = self.face_detector.detect_faces(frame)
+                # _, recognition_faces = self.face_detector.detector.detect(
+                #     cv2.resize(frame, self.face_detector.det_res)
+                # )
+
             # rescale bboxes to original frame size
-            if len(faces) != 0:
-                faces = utils.rescale_boxes(
-                    faces[0], self.performance_settings.resolution
-                )
+            # if len(bboxes) != 0:
+            faces = utils.rescale_boxes(
+                bboxes, self.performance_settings.resolution
+            )
 
             print(f"tracked {len(faces)} faces.")
-            if recognition_faces is None:
-                recognition_faces = []
-            recognition_faces = [face for face in recognition_faces if face is not None]
+            if features is None:
+                features = []
+            features = [face for face in features if face is not None]
 
             recognized_dict = self.face_recognizer.recognize_faces(
-                frame, recognition_faces
+                frame, features
             )
 
             unknown_faces = []
@@ -99,9 +99,15 @@ class RealTimeFaceBlurrerByFrame(RealTimeFaceBlurrer):
                     # Apply blurring if face is unknown
                     if recognized_dict[i] is None:
                         unknown_faces.append(face)
-                    if self.performance_settings.enable_labels and recognized_dict[i] is not None:
+                    if (
+                        self.performance_settings.enable_labels
+                        and recognized_dict[i] is not None
+                    ):
                         (w, h), _ = cv2.getTextSize(
-                            recognized_dict[i], cv2.FONT_HERSHEY_SIMPLEX, 0.7, 2
+                            recognized_dict[i],
+                            cv2.FONT_HERSHEY_SIMPLEX,
+                            0.7,
+                            2,
                         )
                         frame = cv2.rectangle(
                             frame,

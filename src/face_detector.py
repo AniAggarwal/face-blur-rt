@@ -16,17 +16,18 @@ class FaceDetector(ABC):
         self.det_res = det_res
 
     @abstractmethod
-    def detect_faces(self, frame: ndarray) -> ndarray:
+    def detect_faces(self, frame: ndarray) -> tuple[ndarray, ndarray]:
         """Detect faces in a frame.
 
         Args:
             frame: a numpy array of shape (height, width, channels) representing the frame.
 
         Returns:
-            A numpy array of shape (n, 4), where n is the number of detected faces.
+            A numpy array of shape (n, 4), where n is the number of detected faces and the full faces detction.
             Each face instance contains four elements: x1, y1, x2, y2, where (x1, y1) and (x2, y2),
             with each pair representing the top-left and bottom-right corners of the bounding box, respectively.
             Note they are fractions of the frame's width and height, respectively.
+            The full faces detection is the output of the face detector model and may have more info.
         """
         # Implementation of face detection.
         return np.array([])  # Return list of detected faces' bounding boxes.
@@ -48,11 +49,11 @@ class YuNetDetector(FaceDetector):
         )
         self.detector.setInputSize(self.det_res)
 
-    def detect_faces(self, frame: ndarray) -> ndarray:
+    def detect_faces(self, frame: ndarray) -> tuple[ndarray, ndarray]:
         frame = cv2.resize(frame, self.det_res)
-        num, faces = self.detector.detect(frame)
-        if faces is None:
-            return np.array([])
+        _, features = self.detector.detect(frame)
+        if features is None:
+            return np.array([]), np.array([])
 
         # faces is 2D arr, rows = detected face instances, cols are:
         # x1, y1, w, h, x_re, y_re, x_le, y_le, x_nt, y_nt, x_rcm, y_rcm, x_lcm, y_lcm
@@ -60,8 +61,8 @@ class YuNetDetector(FaceDetector):
         # {x, y}_{re, le, nt, rcm, lcm}: coordinates of right eye, left eye, nose tip, right corner, left corner of mouth
 
         # for now, discard everything but the face bounding box
-        bboxes = faces[:, :4]
-        
+        bboxes = features[:, :4]
+
         # convert width and height to x2, y2
         bboxes[:, 2] += bboxes[:, 0]
         bboxes[:, 3] += bboxes[:, 1]
@@ -72,7 +73,7 @@ class YuNetDetector(FaceDetector):
         # make sure to clip to [0, 1]
         bboxes = np.clip(bboxes, 0, 1)
 
-        return bboxes.astype(np.float32), faces
+        return bboxes.astype(np.float32), features
 
 
 class SCRFDDetector(FaceDetector):
