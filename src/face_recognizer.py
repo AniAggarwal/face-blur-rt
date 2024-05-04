@@ -88,7 +88,6 @@ class SFRecognizer(FaceRecognizer):
                     encoding, curr, cv2.FaceRecognizerSF_FR_COSINE
                 )
 
-                print("avg_cosine: ", avg_cosine)
                 # select the best matching name
                 if avg_cosine > best_cosine:
                     best_idx = name

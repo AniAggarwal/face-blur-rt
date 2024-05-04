@@ -35,7 +35,7 @@ class FaceTracker:
 
         # Update the tracker with the new frame detections and get the updated track information
         tracked_faces = self.tracker.update(detections)
-        tracked_faces = tracked_faces[:, :4]
+        tracked_faces = tracked_faces[:, :4]  # throw away the confidence
 
         # Normalize the tracked coordinates back to [0, 1] range
         if tracked_faces.size > 0:

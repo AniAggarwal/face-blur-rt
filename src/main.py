@@ -35,10 +35,10 @@ if __name__ == "__main__":
         Path("./data/demos/irl-stream-long-30fps.mp4").resolve()
     )
     # set to None to not output to CSV
-    # output_csv = Path(
-    #     "./data/demos/irl-stream-long-30fps-ours-detection-only.csv"
-    # ).resolve()
-    output_csv = None
+    output_csv = Path(
+        "./data/demos/irl-stream-long-30fps-ours-detection-recognition-guassiancircle.csv"
+    ).resolve()
+    # output_csv = None
 
     if output_csv is not None:
         if output_csv.exists():
@@ -54,32 +54,39 @@ if __name__ == "__main__":
         with open(output_csv, "w") as f:
             f.write('"frame_num","time_elapsed","bboxes"\n')
 
-    blur_method = BlurringMethod.LINE
+    # blur_method = BlurringMethod.LINE
     # blur_method = BlurringMethod.BLACK
-    blur_method = BlurringMethod.BOX
-    # blur_method = BlurringMethod.GAUSSIAN
+    # blur_method = BlurringMethod.BOX
+    blur_method = BlurringMethod.GAUSSIAN
 
     # blur_shape = BlurringShape.SQUARE
     blur_shape = BlurringShape.CIRCLE
     # view_camera(0)
 
-    detector_path = Path("./models/face_detection_yunet_2023mar.onnx").resolve()
-    recognizer_path = Path("./models/face_recognition_sface_2021dec.onnx").resolve()
+    detector_path = Path(
+        "./models/face_detection_yunet_2023mar.onnx"
+    ).resolve()
+    recognizer_path = Path(
+        "./models/face_recognition_sface_2021dec.onnx"
+    ).resolve()
     known_faces_path = Path("./data/known-faces").resolve()
-
-    face_detection_model = YuNetDetector(detector_path)
     # If a detected face has a cosine similarity less than this value for all known faces
     # it will be blurred
-    cosine_threshold = 0.30
+    cosine_threshold = 0.35
+    use_face_tracker = False
+    print("Using face tracker:", use_face_tracker)
+
+    face_detection_model = YuNetDetector(detector_path)
     face_recognition_model = SFRecognizer(
-        recognizer_path, face_detection_model, known_faces_path, cosine_threshold
+        recognizer_path,
+        face_detection_model,
+        known_faces_path,
+        cosine_threshold,
     )
     face_tracker = FaceTracker(face_detection_model)
 
-    use_face_tracker = False
-
     performance_settings = PerformanceSettings(
-        (640, 480), 30, True, True, True, True
+        (640, 480), 30, False, True, False, True, False
     )
 
     real_time_blurrer = RealTimeFaceBlurrerByFrame(

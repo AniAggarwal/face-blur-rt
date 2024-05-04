@@ -9,6 +9,7 @@ class PerformanceSettings:
         resolution: tuple[int, int],
         target_fps: int,
         fps_counter: bool = True,
+        enable_recognition: bool = True,
         enable_labels: bool = True,
         apply_blur: bool = True,
         display_video: bool = True,
@@ -16,6 +17,7 @@ class PerformanceSettings:
         self.resolution = resolution
         self.target_fps = target_fps
         self.fps_counter = fps_counter
+        self.enable_recognition = enable_recognition
         self.enable_labels = enable_labels
         self.apply_blur = apply_blur
         self.display_video = display_video

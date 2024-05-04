@@ -69,6 +69,8 @@ class RealTimeFaceBlurrerByFrame(RealTimeFaceBlurrer):
 
             bboxes = None
             if self.use_face_tracker:
+                # note it is possible for less features to be present than faces tracked
+                # due to detector not finding features but tracker suceeding
                 bboxes, features = self.face_tracker.track_faces(frame)
             else:
                 bboxes, features = self.face_detector.detect_faces(frame)
@@ -79,24 +81,32 @@ class RealTimeFaceBlurrerByFrame(RealTimeFaceBlurrer):
             )
 
             # print(f"Found {len(faces)} faces.")
-            if features is None:
-                features = []
-            features = [face for face in features if face is not None]
+            # if features is None:
+            #     features = []
+            # print("before", features)
+            # features = [feature for feature in features if feature is not None]
+            # print("after", features)
 
-            recognized_dict = self.face_recognizer.recognize_faces(
-                frame, features
-            )
+            if self.performance_settings.enable_recognition:
+                recognized_dict = self.face_recognizer.recognize_faces(
+                    frame, features
+                )
 
-            if self.performance_settings.enable_labels:
-                frame = utils.draw_labels(frame, faces, recognized_dict)
+                if self.performance_settings.enable_labels:
+                    frame = utils.draw_labels(frame, faces, recognized_dict)
 
-            # Apply blurring to unrecognized faces
-            unknown_faces = [
-                face
-                for i, face in enumerate(faces)
-                if recognized_dict[i] is None
-            ]
-            frame = self.blurrer.apply_blur(frame, unknown_faces)
+                # Apply blurring to unrecognized faces
+                faces_to_blur = [
+                    face
+                    for i, face in enumerate(faces)
+                    if recognized_dict.get(i, None) is None
+                ]
+            else:
+                # blur all faces
+                faces_to_blur = faces
+
+            if self.performance_settings.apply_blur:
+                frame = self.blurrer.apply_blur(frame, faces_to_blur)
 
             tick_meter.stop()
             time_end = torch.cuda.Event(enable_timing=True)
