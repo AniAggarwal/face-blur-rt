@@ -58,8 +58,7 @@ class SFRecognizer(FaceRecognizer):
             self.face_encodings[name.name] = np.mean(encoding, axis=0)
 
         print(
-            f"Loaded {len(self.face_encodings)} known faces."
-            f"Training images per face: { {n: len(f) for n, f in self.face_encodings.items()} }"
+            f"Loaded {len(self.face_encodings)} known faces for {list(self.face_encodings.keys())}."
         )
 
     def recognize_faces(
