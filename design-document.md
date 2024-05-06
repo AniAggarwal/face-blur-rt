@@ -1,17 +1,5 @@
 # Python System Design Document: Real-Time Face Blurring Tool
 
-## TODO:
-
-- [x] FPS counter - Ani
-- [x] Face recognition (that works) - Rohit
-- [x] Add ellipse mode to better cover face with circular mode - Monish
-- [ ] Improve performance of blurring techniques (except for black square, which is very fast)
-    - parituclarly guassian blur with circle - Vance
-- [ ] Add different face detection models - Vance
-- [ ] Create a temporal tracking model - Varun
-- [ ] Create custom frame by frame DNN
-- [x] Add an sample video and code to read from video instead of just camera
- 
 ## Overview
 
 The project aims to develop a Python-based tool for real-time face blurring in live footage, ideal for livestreaming in public spaces. This tool will incorporate computer vision and object detection techniques to identify and blur faces dynamically. Key features will include selective face recognition to leave specified faces unblurred, a recurrent model to handle occlusions effectively, and customizable settings for balancing frame rate and accuracy. Additional blurring options will also be provided.

@@ -55,12 +55,12 @@ if __name__ == "__main__":
             f.write('"frame_num","time_elapsed","bboxes"\n')
 
     # blur_method = BlurringMethod.LINE
-    blur_method = BlurringMethod.BLACK
-    # blur_method = BlurringMethod.BOX
+    # blur_method = BlurringMethod.BLACK
+    blur_method = BlurringMethod.BOX
     # blur_method = BlurringMethod.GAUSSIAN
 
-    blur_shape = BlurringShape.SQUARE
-    # blur_shape = BlurringShape.CIRCLE
+    # blur_shape = BlurringShape.SQUARE
+    blur_shape = BlurringShape.CIRCLE
     # view_camera(0)
 
     detector_path = Path(

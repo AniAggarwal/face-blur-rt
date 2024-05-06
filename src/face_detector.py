@@ -85,7 +85,6 @@ class SCRFDDetector(FaceDetector):
         # for now try using pytorch native model
         self.model = torch.load(model_path)
 
-        # TODO: figure this out
         # SCRFD requires onnx runtime; convert to onnx if not already
         # model_path = Path(model_path)
         # if not model_path.suffix == ".onnx":
@@ -112,7 +111,6 @@ class SCRFDDetector(FaceDetector):
 
         return []
 
-    # TODO: make onnx implementation work
     # def detect_faces(self, frame: ndarray) -> list[int]:
     #     # Implementation of face detection using SCRFD.
     #

@@ -176,7 +176,6 @@ class Blurrer:
 
         return frame
 
-    # TODO: implement these
     # def pixelate_blur(self, frame: ndarray, faces: ndarray) -> ndarray:
     #     """Apply a pixelation blur to the faces in the frame."""
     #     for face in faces:
