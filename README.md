@@ -14,10 +14,7 @@ A simple tool to provide real time blur of select faces on video input.
 https://github.com/AniAggarwal/face-blur-rt/assets/52252926/cabb24fc-01c7-495a-838c-ac7c18ac804a
 
 # The Full Report
-Final Project Report
-Ani Aggarwal, Vance Degen, Varun Unnithan, Monish Napa, Rohit Kommuru
-
-All code for the project can be found at: https://github.com/AniAggarwal/face-blur-rt
+Project and Report Created and Written by: **Ani Aggarwal, Vance Degen, Varun Unnithan, Monish Napa, Rohit Kommuru**.
 
 ## Initial Goal
 The basic project description is to use computer vision and object detection to blur faces in real time, i.e. face blurring on live footage. This tool would be useful for use cases such as live streaming in public, as well as potentially for the implementation of security footage and surveillance that can be monitored in real-time without compromising privacy. Some planned features are:
