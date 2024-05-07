@@ -2,8 +2,6 @@
 
 A simple tool to provide real time blur of select faces on video input.
 
-Check `design-document.md` for a timeline and details.
-
 # Installation
 
 1. Install conda or mamba
