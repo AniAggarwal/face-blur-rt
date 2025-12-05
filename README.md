@@ -104,47 +104,6 @@ Overall, our initial goals were met. We were successfully able to create an effe
 
 There are a few limitations that could be resolved involving the scope of the project. In future implications, the project could be expanded to use more advanced algorithms to accurately detect and blur faces in situations such as rapid movement, low frame rate, or occluded faces where the model may not perform best. Additionally, the tracking algorithm could be tweaked to decrease erroneous bounding boxes, while still maintaining a high recall of faces covered, and the face recognizer could be optimized to distinguish between faces that appear similar. Finally, the model could be more computationally efficient in order to process larger streams of data, such as hours of pre-recorded footage, which may require significant time to run.
 
-
-## Contributions by Members
-### Ani
-
-I worked out an outline for the project, a timeline, project expectations and deliverables. I later wrote the code for the MVP and spent time ensuring that it was written in an OOP manner to facilitate better collaboration (e.g. avoiding merge conflicts). I then read papers and experimented with different models and tried training my own (compute limited on my laptop and was refused extra compute) and settled on two different pretrained models for face detection. Did a similar process with recognition but only choose one. Overall, to deliver the MVP and a bit more I wrote the main controller, face detector, recognizer, blurrer, and various options for a total of about 2,000 lines. I then wrote a benchmarking suite which included researching and getting TinaFace running, modifying vedadet’s code to run TinaFace on a video and output metrics to a file. I then added benchmarking features to our project and created a Jupyter notebook to take the results from the CSVs and create graphs and tables. This process took a lot of back and forth and iterations to make everything work and look nice, and running benchmarks took a long time. I also wrote about all of the benchmarking in the final report. In addition to the code I wrote I worked as a project manager and scrum master in an effort to encourage progress to be made and did my best to support other team members to reduce the friction needed to work on the project.
-
-### Vance
-
-I tested alternatives to YuNet and SCRFD, namely BlazeFace, ULFG,  and Haar Cascade. My main contribution was in face tracking. I tested several tracking algorithms, such as correlational tracking, CSRT, KCF, MOSSE, and wrote my own bounding box interpolation algorithm based on cubic spline interpolation. I ultimately decided that the SORT algorithm exceeded all other techniques in both speed and accuracy. Due to the SORT algorithm not offering enough of an improvement over the existing detection framework, I tweaked the implementation to offer a high recall, which leads to a notably higher coverage of faces. 
-
-### Varun
-
-I worked to research and learn more about the systems and architectures with the project, and experimented with using a custom Kalman Filter for face tracking, though was ultimately unable to achieve a usable version of it to work. I also tested and wrote different blurring algorithms to optimize the real-time blurrer for speed and effectiveness. I helped write the report and system architecture figures.
-
-### Rohit
-
-I worked on the debugging issues with face tracker, recognizer, and detector. To do this, I experimented with the model using different reference photos and different testing. I found issues with the retrieval of facial features from the face detection model and tracker, and the input and output resolution of the face detection and recognizer. Through experimentation, I set a cosine similarity threshold to determine whether or not a face should be recognized. Additionally, I worked on drawing the bounding boxes and labeling.  
-
-### Monish
-
-I worked on improving coverage of the face blurrer by expanding the detection area of 
-each box covered by the face detector algorithm and updating the circular blurring shape 
-to account for more elliptical features using calculations involving the dimensions of the 
-box. This allows the gaussian blurring algorithm as well as the circular bounding box to 
-reflect the shapes of users’ faces more closely. In addition, I researched existing blurring 
-methods, performed testing of the facial recognition algorithm, and adjusted the elliptical 
-detection to account for different angles. Finally, I helped construct major sections of 
-the report and created the presentation/poster material.
-
-**Output of modified git-log command for reference:**
-```
-AniAggarwal,: 152 files changed, 199934 insertions(+), 33822 deletions(-), 166112 net
-monishnapa,: 1 files changed, 10 insertions(+), 8 deletions(-), 2 net
-noreply,: 9 files changed, 170 insertions(+), 6 deletions(-), 164 net
-rohitkommuru,: 7 files changed, 110 insertions(+), 71 deletions(-), 39 net
-vancedegen,: 76 files changed, 36784 insertions(+), 351 deletions(-), 36433 net
-vancedegen,noreply,: 1 files changed, 4 insertions(+), 8 deletions(-), -4 net
-varun.unnithan33,: 2 files changed, 19 insertions(+), 4 deletions(-), 15 net
-varun.unnithan33,noreply,: 2 files changed, 11 insertions(+), 2 deletions(-), 9 net
-```
-
 ## Figures
 
 A. Face blurring pipeline
@@ -174,10 +133,9 @@ F. Number of excess bounding boxes, using TinaFace bounding boxes as ground trut
 
 ## Bibliography:
 
-Wu, W., Peng, H. & Yu, S. YuNet: A Tiny Millisecond-level Face Detector. Mach. Intell. Res. 20, 656–665 (2023).
-Guo, Jia, et al. "Sample and computation redistribution for efficient face detection." arXiv preprint arXiv:2105.04714 (2021).
-Zhu, Yanjia, et al. "Tinaface: Strong but simple baseline for face detection." arXiv preprint arXiv:2011.13183 (2020).
-Bewley, Alex, et al. "Simple online and realtime tracking." 2016 IEEE international conference on image processing (ICIP). IEEE, 2016.
-Boutros, Fadi, et al. "Sface: Privacy-friendly and accurate face recognition using synthetic data." 2022 IEEE International Joint Conference on Biometrics (IJCB). IEEE, 2022.
-Bajpai, R., Aravamuthan, B. “SecurePose: Automated face blurring and human movement kinematics extraction from videos recorded in clinical settings.” arXiv
-preprint arXiv:2402.14143 (2024)
+Wu, W., Peng, H. & Yu, S. YuNet: A Tiny Millisecond-level Face Detector. Mach. Intell. Res. 20, 656–665 (2023).  
+Guo, Jia, et al. "Sample and computation redistribution for efficient face detection." arXiv preprint arXiv:2105.04714 (2021).  
+Zhu, Yanjia, et al. "Tinaface: Strong but simple baseline for face detection." arXiv preprint arXiv:2011.13183 (2020).  
+Bewley, Alex, et al. "Simple online and realtime tracking." 2016 IEEE international conference on image processing (ICIP). IEEE, 2016.  
+Boutros, Fadi, et al. "Sface: Privacy-friendly and accurate face recognition using synthetic data." 2022 IEEE International Joint Conference on Biometrics (IJCB). IEEE, 2022.  
+Bajpai, R., Aravamuthan, B. “SecurePose: Automated face blurring and human movement kinematics extraction from videos recorded in clinical settings.” arXiv preprint arXiv:2402.14143 (2024)  
